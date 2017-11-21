@@ -1,3 +1,0 @@
-#define HAVE_LIBEXPAT 0
-
-#define NUM_THREADS   1
