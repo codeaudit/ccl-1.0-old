@@ -11,7 +11,11 @@ model.num_basis = 20;
 model.c     = generate_kmeans_centres (X, model.num_basis) ;      % generate a grid of basis functions
 model.s2    = real(mean(mean(sqrt(distances(model.c, model.c))))^2) ;   % set the variance as the mean distance between centres
 model.phi   = @(x)phi_gaussian_rbf ( x, model.c, model.s2 ); % normalised Gaussian rbfs
+tic;
 model       = learn_ncl (X, Y, model) ;   % learn the model
+t = toc;
+s = sprintf('Finishing learning in %f ms',1000*t);
+disp(s);
 f_ncl       = @(x) predict_ncl ( model, x ) ; % set up an inference function
 NSp = f_ncl (X) ;
 %% evaluate

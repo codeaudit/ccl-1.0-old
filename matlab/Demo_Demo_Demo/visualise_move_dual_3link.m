@@ -10,7 +10,7 @@ dim_n = length(R_l) ;
 xmin = -1.5 ; xmax = 2 ;
 ymin = -2.5 ; ymax = 2.5 ;
 
-fig_handle = figure(figh);
+fig_handle = figure(figh); hold on;
 if nargin > 3
     title_txt = varargin{1};title(title_txt);
     pos       = varargin{2};set(fig_handle, 'Position', pos);
@@ -21,7 +21,7 @@ R1_l = squeeze([R_l(1,1,:); R_l(2,1,:)]);
 R2_l = squeeze([R_l(1,2,:); R_l(2,2,:)]);
 R3_l = squeeze([R_l(1,3,:); R_l(2,3,:)]);
 
-plot( R1_l(1,:),R1_l(2,:), '--','LineWidth', 2) ;hold on;
+plot( R1_l(1,:),R1_l(2,:), '--','LineWidth', 2) ;
 plot( R2_l(1,:),R2_l(2,:),'--', 'LineWidth', 2) ;
 plot( R3_l(1,:),R3_l(2,:),'--', 'LineWidth', 2) ;
 

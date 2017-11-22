@@ -14,7 +14,11 @@ phi_= [1 0 0;
        0 1 0];
 J_l  = @(q)J_planar_3_link_arm(q,model);
 PHI_l = @(q)(phi_*J_l(q));
+tic;
 [optimal_l] = learn_lambda_ccl (Y(1:3,:), X(1:3,:), PHI_l, options);
+t= toc;
+s = sprintf('Finishing learning in %f ms',1000*t);
+disp(s);
 %% read C code model
 optimal_cl = optimal_l;
 optimal_cl.w = [];
@@ -96,16 +100,17 @@ for i = 1:N
     while n < 51
         r = [fk_l(q);fk_r(q)];
         q_null_target = [];
-        if r(1) <= -0.5
-            q_null_target = [-pi/2,rand+1.2,rand+1.2];
-        elseif r(1) > -0.5
-            q_null_target = [-pi,rand+1.2,rand+1.2];
-        end
-        if r(4) >=0.5
-            q_null_target = [q_null_target, -pi/2,-rand-1.2,-rand-1.2];
-        elseif r(4)< 0.5
-            q_null_target = [q_null_target, 0,-rand-1.2,-rand-1.2];
-        end   
+        q_null_target = [-pi/2,rand+1.2,rand+1.2,-pi/2,-rand-1.2,-rand-1.2];
+%         if r(1) <= -0.5
+%             q_null_target = [-pi/2,rand+1.2,rand+1.2];
+%         elseif r(1) > -0.5
+%             q_null_target = [-pi,rand+1.2,rand+1.2];
+%         end
+%         if r(4) >=0.5
+%             q_null_target = [q_null_target, -pi/2,-rand-1.2,-rand-1.2];
+%         elseif r(4)< 0.5
+%             q_null_target = [q_null_target, 0,-rand-1.2,-rand-1.2];
+%         end   
 %         if r(1)<= -0.5 && r(4)>= 0.5
 %             q_null_target = [-pi/2,rand+1.2,rand+1.2,-pi/2,-rand-1.2,-rand-1.2]';
 %         elseif  r(1)>= -0.5 && r(4)<= 0.5
@@ -131,10 +136,10 @@ for i = 1:N
         q = q + dt*u;
         n = n + 1;
     end
-%     if i <= 3
-%         fig = figure(1);
-%         visualise_move_dual_3link(fig,R_li,R_ri,X_i(1:3,:),X_i(4:6,:),model.L,'Resolving nullspace projection -- a Grasping task',[0,500,600,600]);
-%     end
+    if i <= 3
+        fig = figure(1);
+        visualise_move_dual_3link(fig,R_li,R_ri,X_i(1:3,:),X_i(4:6,:),model.L,'Resolving nullspace projection -- a Grasping task',[0,500,600,600]);
+    end
     X = [X,X_i];
     Y = [Y,Y_i];
     Pi = [Pi,Pi_];
@@ -164,16 +169,17 @@ beta = 0.5;
 while n < 50
     r = [fk_l(q);fk_r(q)];
     q_null_target = [];
-    if r(1) <= -0.5
-        q_null_target = [-pi/2,rn+1.2,rn+1.2];
-    elseif r(1) > -0.5
-        q_null_target = [-pi,rn+1.2,rn+1.2];
-    end
-    if r(4) >=0.5
-        q_null_target = [q_null_target, -pi/2,-rn-1.2,-rn-1.2];
-    elseif r(4)< 0.5
-        q_null_target = [q_null_target, 0,-rn-1.2,-rn-1.2];
-    end
+    q_null_target = [-pi/2,rn+1.2,rn+1.2,-pi/2,-rn-1.2,-rn-1.2];
+%     if r(1) <= -0.5
+%         q_null_target = [-pi/2,rn+1.2,rn+1.2];
+%     elseif r(1) > -0.5
+%         q_null_target = [-pi,rn+1.2,rn+1.2];
+%     end
+%     if r(4) >=0.5
+%         q_null_target = [q_null_target, -pi/2,-rn-1.2,-rn-1.2];
+%     elseif r(4)< 0.5
+%         q_null_target = [q_null_target, 0,-rn-1.2,-rn-1.2];
+%     end
 %     if r(1)<= -0.5 && r(4)>= 0.5
 %         q_null_target = [-pi/2,rn+1.2,rn+1.2,-pi/2,-rn-1.2,-rn-1.2]';
 %     elseif  r(1)>= -0.5 && r(4)<= 0.5
@@ -201,73 +207,27 @@ fig = figure(5);
 visualise_move_dual_3link(fig,R_li,R_ri,X_i(1:3,:),X_i(4:6,:),model.L,tt,[0,500,600,600]);
 end
 
-function  data_reproduction_alpha(settings,q0,rn,A)
-dt = settings.dt;
-model.L = [1,1,1];
-fk_l = @(q)r_planar_3_link_arm(q(1:3),model);
-fk_all_l = @(q)r_planar_3_link_arm_all(q(1:3),model);
-J_l  = @(q)J_planar_3_link_arm(q(1:3),model);
-
-fk_r = @(q)r_planar_3_link_arm(q(4:6),model);
-fk_all_r = @(q)r_planar_3_link_arm_all(q(4:6),model);
-J_r  = @(q)J_planar_3_link_arm(q(4:6),model);
-J = @(q)([J_l(q), zeros(3,3);zeros(3,3),J_r(q)]);
-phi_= [1 0 0 0 0 0;
-    0 1 0 0 0 0;
-    0 0 0 1 0 0
-    0 0 0 0 1 0];
-Phi = @(q)(phi_*J(q));
-X_i = []; Y_i = []; R_li = [];R_ri = [];
-n = 1;
-q = q0;
-r = [fk_l(q);fk_r(q)];
-while n < 50
-    if r(1)<= -0.5 && r(4)>= 0.5
-        q_null_target = [-pi/2,rn+1.2,rn+1.2,-pi/2,-rn-1.2,-rn-1.2]';
-    elseif  r(1)>= -0.5 && r(4)<= 0.5
-        q_null_target = [-pi,rn+1.2,rn+1.2,0,-rn-1.2,-rn-1.2]';
-    elseif  r(1)> -0.5 && r(4)> 0.5
-        q_null_target = [-pi,rn+1.2,rn+1.2,-pi/2,-rn-1.2,-rn-1.2]';
-    elseif  r(1)< -0.5 && r(4)< 0.5
-        q_null_target = [-pi/2,rn+1.2,rn+1.2,0,-rn-1.2,-rn-1.2]';
-    end
-    pi_ = @(q)(1*(q_null_target-q));
-    pinvA = pinv(A(q));
-    N = eye(6) - pinvA*A(q);
-    u_ts = zeros(6,1);
-    u_ns = N*pi_(q);
-    u =  u_ts+ u_ns;
-    X_i = [X_i q];
-    Y_i = [Y_i u];
-    R_li(:,:,n) = fk_all_l(q);
-    R_ri(:,:,n) = fk_all_r(q);
-    q = q + dt*u;
-    r = [fk_l(q);fk_r(q)];
-    n = n + 1;
-end
-fig = figure(5);
-visualise_move_dual_3link(fig,R_li,R_ri,X_i(1:3,:),X_i(4:6,:),model.L,'Resolving nullspace projection -- a Grasping task',[0,500,600,600]);
-end
-
 function lambda = env(x)
-model.L = [1,1,1];
-fk_l = @(x)r_planar_3_link_arm(x(1:3),model);
-fk_r = @(x)r_planar_3_link_arm(x(4:6),model);
-r = [fk_l(x);fk_r(x)];
-if r(1)<=-0.5
-    lambda = [0 1 0 0];
-elseif r(1)> -0.5
-    lambda = [1 0 0 0;
-              0 1 0 0];
-end
-if r(4)>=0.5
-    lambda = [lambda;
-              0 0 0 1];
-elseif r(4) < 0.5
-    lambda = [lambda;
-              0 0 1 0;
-              0 0 0 1];
-end
+lambda = [0 1 0 0;
+          0 0 0 1];
+% model.L = [1,1,1];
+% fk_l = @(x)r_planar_3_link_arm(x(1:3),model);
+% fk_r = @(x)r_planar_3_link_arm(x(4:6),model);
+% r = [fk_l(x);fk_r(x)];
+% if r(1)<=-0.5
+%     lambda = [0 1 0 0];
+% elseif r(1)> -0.5
+%     lambda = [1 0 0 0;
+%               0 1 0 0];
+% end
+% if r(4)>=0.5
+%     lambda = [lambda;
+%               0 0 0 1];
+% elseif r(4) < 0.5
+%     lambda = [lambda;
+%               0 0 1 0;
+%               0 0 0 1];
+% end
 % if r(1)<= -0.5 && r(4)>=0.5
 %     lambda = [0 1 0 0;
 %         0 0 0 1];
