@@ -12,7 +12,11 @@ model.c     = generate_kmeans_centres (X, model.num_basis) ;      % generate a g
 model.s2    = real(mean(mean(sqrt(distances(model.c, model.c))))^2) ;   % set the variance as the mean distance between centres
 model.W   = @(x)phi_gaussian_rbf( x, model.c, model.s2 );
 model.phi = @(x)phi_linear( x );
+tic;
 model = learn_lwccl(X,Y,model); 
+t = toc;
+s = sprintf('Finishing learning in %f ms',1000*t);
+disp(s);
 fp = @(x)predict_local_linear(x,model);
 Fptr = fp(X);
 %% evaluate
@@ -73,10 +77,10 @@ for i = 1:N
         q = q + dt*u;
         n = n + 1;
     end
-%     if i <= 3
-%         fig = figure(1);
-%         visualise_move_3link(fig,R_i,X_i,model.L,'Resolving nullspace policy -- a Wiping task',[0,500,600,600]);
-%     end
+    if i <= 3
+        fig = 1;
+        visualise_move_3link(fig,R_i,X_i,model.L,'Resolving nullspace policy -- a Wiping task',[0,500,600,600]);
+    end
     X = [X,X_i(:,2:end)];
     Y = [Y,Y_i(:,2:end)];
     Pi = [Pi,Pi_i(:,2:end)];
@@ -105,7 +109,7 @@ while n < 41
     n = n + 1;
     R_i(:,:,n) = fk_all(q);
 end
-fig = figure(2);
+fig = 2;
 visualise_move_3link(fig,R_i,X_i,model.L,tt,[600,500,600,600]);
 end
 function [centres,s2,X] = read_to_matlab(filename,dim_x,dim_b,dim_phi,dim_y)

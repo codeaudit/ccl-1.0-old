@@ -47,12 +47,14 @@ void ccl_learn_ncl(const double * X, const double *Y, const int dim_x, const int
     option.Tolfun  = 1E-9;
     option.Tolx    = 1E-9;
     option.Jacob   = 0;
-
+    clock_t t = clock();
     ccl_lsqnonlin(model,BX,Y,option,&lm_ws_param,model->w);
+    t = clock()-t;
+    printf("\n learning nullspace component used: %f second \n",((float)t)/CLOCKS_PER_SEC);
     ccl_write_ncl_model("/home/yuchen/Desktop/ccl-1.1.0/data/ncl_model.txt",model);
     double* Unp = malloc(model->dim_y*model->dim_n*sizeof(double));
     predict_ncl(model,BX,Unp);
-    print_mat_d(model->w,model->dim_y,model->dim_b);
+//    print_mat_d(model->w,model->dim_y,model->dim_b);
 //    print_mat_d(Unp,model->dim_y,model->dim_n);
     free(Unp);
     ccl_learn_ncl_model_free(model);
@@ -377,8 +379,8 @@ void predict_ncl(const LEARN_NCL_MODEL* model, const double* BX, double* Unp){
     int i;
     for (i=0;i<dim_n;i++){
         gsl_matrix_get_col(vec,BX_,i);
-        print_mat_d(model->w,model->dim_y,model->dim_b);
-        print_mat_d(vec->data,model->dim_b,1);
+//        print_mat_d(model->w,model->dim_y,model->dim_b);
+//        print_mat_d(vec->data,model->dim_b,1);
         ccl_dot_product(model->w,model->dim_y,model->dim_b,vec->data,model->dim_b,1,vec_->data);
         gsl_matrix_set_col(&Unp_,i,vec_);
     }

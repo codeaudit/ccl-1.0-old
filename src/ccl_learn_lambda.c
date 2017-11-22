@@ -135,7 +135,7 @@ void ccl_learn_lambda(const double * Un,const double *X,void (*J_func)(const dou
     ccl_learn_alpha_model_alloc(&model);
     memcpy(model.c,centres,model.dim_x*model.dim_b*sizeof(double));
     model.s2 = variance;
-
+    clock_t t = clock();
     for(lambda_id=0;lambda_id<dim_r;lambda_id++){
         model.dim_k = lambda_id+1;
         //        model.w[lambda_id] = malloc((dim_u-model.dim_k)*dim_b*sizeof(double*));
@@ -187,6 +187,8 @@ void ccl_learn_lambda(const double * Un,const double *X,void (*J_func)(const dou
             free(theta);
         }
     }
+    t = clock()-t;
+    printf("\n learning lambda used: %f second \n",((float)t)/CLOCKS_PER_SEC);
     double* A = malloc(model.dim_k*model.dim_r*sizeof(double));
     gsl_matrix* Iu = gsl_matrix_alloc(model.dim_r,model.dim_r);
     gsl_matrix_set_identity(Iu);
