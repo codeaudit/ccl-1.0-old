@@ -266,7 +266,7 @@ void predict_local_linear(const double* X, const double* centres,const double va
             gsl_matrix_set_col(WX_rep,n,WX_vec);
         }
         ccl_mat_transpose(Phi->data,model->dim_phi,model->dim_n,Phi_T->data);
-        print_mat_d(model->w[i],model->dim_phi,model->dim_y);
+//        print_mat_d(model->w[i],model->dim_phi,model->dim_y);
         ccl_dot_product(Phi_T->data,model->dim_n,model->dim_phi,model->w[i],model->dim_phi,model->dim_y,Yp_T->data);
         gsl_matrix_mul_elements(Yp_T,WX_rep);
         ccl_mat_transpose(Yp_T->data,model->dim_n,model->dim_y,Yp_i->data);
