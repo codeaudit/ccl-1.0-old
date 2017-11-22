@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <time.h>
 #define NUM_CONSTRAINT 2
 #ifdef __cplusplus
 extern "C" {
