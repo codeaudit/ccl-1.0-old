@@ -1,5 +1,5 @@
 # ccl-1.0.0
-updating
+This Constraint Consistent Libray package will be merge to the master branch.
 
 GSL libary is required and fetch by:
 apt-get install gsl-bin
