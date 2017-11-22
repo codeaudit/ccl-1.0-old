@@ -89,10 +89,10 @@ for i = 1:N
         q = q + dt*u;
         n = n + 1;
     end
-%     if i <= 3
-%         fig = figure(1);
-%         visualise_move_3link(fig,R_i,X_i,model.L,'Resolving nullspace resolutions',[0,500,600,600]);
-%     end
+    if i <= 3
+        fig = figure(1);
+        visualise_move_3link(fig,R_i,X_i,model.L,'Resolving nullspace resolutions',[0,500,600,600]);
+    end
     X = [X,X_i];
     Y = [Y,Y_i];
     Un = [Un,Un_i];
